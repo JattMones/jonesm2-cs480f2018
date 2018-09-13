@@ -1,1 +1,1 @@
-# jonesm2-cs480f2018
+# Repository for jonesm2, CS480f2018
