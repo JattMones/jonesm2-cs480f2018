@@ -1,79 +1,34 @@
 #!/usr/bin/env python3
-"""imageScanner.py: Program to scan the pixels of images for their RGB data."""
+"""imageScanner.py: A program that builds a list of objects by looking for adjacent pixels of the same color"""
 
-__author__      = "NAME"
-__date__        = "5 Oct 2018"
-
-
-
-def getAvgRGB(ima): # works the image algorithm
-#Scan the whole image and then get an average red, Green and Blue number for the image
-    counter = 0            #Number of pixels that are almost white
-
-
-    red_int = 0
-    green_int = 0
-    blue_int = 0
-
-    for i in range(ima.shape[0]):
-        for j in range(ima.shape[1]):
-            counter += 1
-            red_int = red_int + ima[i,j,0]
-            green_int = green_int + ima[i,j,1]
-            blue_int = blue_int + ima[i,j,2]
-
-    avgRed_flt = red_int / counter
-    avgGreen_flt = green_int / counter
-    avgBlue_flt = blue_int / counter
-
-    return [avgRed_flt, avgGreen_flt, avgBlue_flt]
-#end of getAvgRGB()
-
-
-
-def computeSnow(cam): # works the image algorithm
-#For every pixel:
-    countSnow = 0            #Number of pixels that are almost white
-    t = 0.75                 #Threshold for almost white-- can adjust between 0.0 and 1.0
-
-    for i in range(cam.shape[0]): # rows
-        for j in range(cam.shape[1]): # columns
-            print(i,j,cam[i,j,0],cam[i,j,1],cam[i,j,2])
-            #Check if red, green, and blue pixels are > t for each i,j location:
-            if (cam[i,j,0] > t) and (cam[i,j,1] > t) and (cam[i,j,2] > t): # the Red Green Blue values (channels of colour)
-
-                countSnow = countSnow + 1
-    return countSnow
-
-#end of computeSnow()
+__author__      = "Matt Jones"
+__date__        = "1 Nov 2018"
 
 def findObjects(cam): # works the image algorithm
-#For every pixel:
+    results = []
     horzPix = []
-    width = cam.shape[0]
-    height = cam.shape[1]
-    count = 0
-    xcount = 0
-    xlength = 0
-    ylength = 0
+    width = cam.shape[0]#Get width of picture
+    height = cam.shape[1]#Get height of picture
+    xcount = 0#Chain of adjacent pixels of same color (notice, since we move Left to Right, Top to Bottom, wraped adjacent pixels are included)
+    xlength = 0#Horizontal length of an object
+    ylength = 0#Verticle length of an object
+    #For every pixel:
     for i in range(width): # rows
         for j in range(height): # columns
-            horzPix.append((cam[i,j,0],cam[i,j,1],cam[i,j,2]))
-            count+= 1
+            horzPix.append((cam[i,j,0],cam[i,j,1],cam[i,j,2]))#Adds the tuple for every pixel color (R,G,B)
     i = 0
-    while i < ((len(horzPix))-1):
-        if (not(horzPix[i] is (1.0, 1.0, 1.0))):
-                if (horzPix[i] == horzPix[i+1]):
-                    print("found repitition")
-                    xcount += 1
+    while i < ((len(horzPix))-1):#Need -1 so that it doesn't check the last pixel (i) and a pixel that doesn't exist (i+1), see line 23
+        if (not(horzPix[i] is (1.0, 1.0, 1.0))):#If the pixel color isn't white
+                if (horzPix[i] == horzPix[i+1]):#If two adjacent pixels are the same color
+                    xcount += 1#Add to chain of adjacent pixels
                 else:
                     if(xcount >= 3):
-                        start = i - xcount
-                        xlength = xcount%width
+                        start = i - xcount#Find where the object started
+                        xlength = xcount%width#Find the object length
                         if(xcount > width):
                             ylength = math.floor(xcount/width)
                         else:
-                            #check specific ylength
+                            #method that checks the next row at specified x values
                             pass
                     else:
                         xcount = 0
@@ -82,19 +37,20 @@ def findObjects(cam): # works the image algorithm
         i += 1
     print("Width: "+str(width))
     print("Height: "+str(height))
-    results = (start, xlength, ylength)
+    results.append((start, xlength, ylength))
     return results
-#end of computeSnow()
+#end of findObjects()
 
 
 def main(in_file1,in_file2=None): # lead function
     print(" Welcome to the image Scanner.")
     print(" First Input file is :",in_file1)
     ima1 = plt.imread(in_file1)   #Read in image
-    count1 = findObjects(ima1)
-    print("  *",in_file1, "   object1", count1)
+    listOfObjects = findObjects(ima1)
+    print("Number of objects: "+ str(len(listOfObjects)))
+    print("List of Objects in",in_file1,": ", listOfObjects)
 
-    print("  Program finished. (Yey!)")
+    print("Program finished!")
 #end of main()
 
 
