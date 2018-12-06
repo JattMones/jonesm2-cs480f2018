@@ -41,7 +41,8 @@ def main(in_file1,in_file2=None): # lead function
     vertLength = 0
     horzObjects = []
     vertObjects = []
-
+    i =1
+    j = 1
     for i in range(height): # rows
         for j in range(width): # columns
             if not(ima1[i,j,0] == 255 and ima1[i,j,1] == 255 and ima1[i,j,2] == 255):
